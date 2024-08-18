@@ -94,6 +94,7 @@ const db=require('./db');
 const bodyParser=require('body-parser')
 const PersonRoutes=require('./Routes/PersonRoutes')
 const MenuItemRoutes=require('./Routes/MenuItemRoutes')
+require('dotenv').config()
 app.use(bodyParser.json())
 app.get('/',function(req,res){
     res.send('Welcome to my restaurant');
@@ -106,5 +107,5 @@ app.use('/item',MenuItemRoutes)
 
 
 
-
+const PORT=process.env.PORT || 3000;
 app.listen(3000,()=>console.log('server is live '))

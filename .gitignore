@@ -2,3 +2,4 @@
 node_modules/
 notes.js
 main.js
+.env
