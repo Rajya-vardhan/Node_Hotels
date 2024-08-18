@@ -50,7 +50,7 @@ router.get('/:workType',async (req,res)=>{
     }
 })
 
-
+// scipt for delete and update
 router.put('/:personId',async (req,res)=>{
     try{
     const id=req.params.personId;
@@ -68,7 +68,6 @@ router.put('/:personId',async (req,res)=>{
 }catch(err){
     console.log(err)
        res.status(500).json({error:'internal server error'})
-
 }
 
 })
