@@ -95,13 +95,26 @@ const bodyParser=require('body-parser')
 const PersonRoutes=require('./Routes/PersonRoutes')
 const MenuItemRoutes=require('./Routes/MenuItemRoutes')
 require('dotenv').config()
+const Passport=require('./auth');
+const passport = require('./auth');
 app.use(bodyParser.json())
-app.get('/',function(req,res){
+
+
+// logging middle-ware 
+const logReq=(req,res,next)=>{
+    console.log('[ ', new Date().toLocaleString(),' ] ' , ' req node to:', ' [ ', req.originalUrl,' ] ')
+    next()
+}
+
+app.use(passport.initialize())
+const localAuthMiddleware=passport.authenticate('local',{session:false})
+
+app.get('/',logReq,function(req,res){
     res.send('Welcome to my restaurant');
 })
 
-app.use('/person',PersonRoutes)
-app.use('/item',MenuItemRoutes)
+app.use('/person',localAuthMiddleware,logReq,PersonRoutes)
+app.use('/item',logReq,MenuItemRoutes)
 
 
 
