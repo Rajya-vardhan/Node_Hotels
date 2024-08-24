@@ -1,21 +1,70 @@
 const express=require('express')
 const router=express.Router()
 const Person=require('./../models/Person')
-
-router.post('/',async (req,res)=>{
+const {jwtAuthMiddleware,genToken}=require('./../jwt')
+router.post('/Signup',async (req,res)=>{
     try{
        const data=req.body;
        const newPerson=new Person(data)
        const SavedPerson= await newPerson.save()
        console.log('data saved')
-       res.status(200).send(SavedPerson)
+       const payload={
+        id:SavedPerson.id,
+        username:SavedPerson.username
+       }
+       const token=genToken(payload)
+       console.log("token is: ",token)
+       res.status(200).send({
+        response:SavedPerson,
+        token:token
+       })
     }catch(err){
        console.log(err)
        res.status(500).json({error:'internal server error'})
     }
 })
 
-router.get('/',async (req,res)=>{
+router.post('/Login', async (req,res)=>{
+    try{
+        const {username,password}=req.body;
+        const user=await Person.findOne({username:username});
+        if(!user || !(await user.comparePass(password))){
+            return res.status(401).json({error:'User not found'});
+        }
+        const payload={
+            id:user.id,
+            username:user.username
+           }
+           const token=genToken(payload)
+           console.log("token is: ",token)
+           res.status(200).send({
+            
+            token:token
+           })
+
+
+    }catch(err){
+        console.log(err)
+       res.status(500).json({error:'internal server error'})
+
+    }
+})
+
+
+router.get('/profile',jwtAuthMiddleware,async (req,res)=>{
+    try{
+    
+    const data=req.user;
+    const id=data.userData.id;
+    
+    const user= await Person.findById(id)
+    res.status(200).json(user)}
+    catch(err){
+        console.log(err)
+       res.status(500).json({error:'internal server error'})
+    }
+})
+router.get('/',jwtAuthMiddleware,async (req,res)=>{
    try{
        const person=await Person.find()
        console.log('data read')
@@ -30,7 +79,7 @@ router.get('/',async (req,res)=>{
 })
 
 
-router.get('/:workType',async (req,res)=>{
+router.get('/:workType',jwtAuthMiddleware,async (req,res)=>{
     try{
         const workType=req.params.workType;
         if(workType=="chef"||workType=="waiter"|| workType=="manager"){
@@ -51,7 +100,7 @@ router.get('/:workType',async (req,res)=>{
 })
 
 // scipt for delete and update
-router.put('/:personId',async (req,res)=>{
+router.put('/:personId',jwtAuthMiddleware,async (req,res)=>{
     try{
     const id=req.params.personId;
     const Updatedata=req.body;
@@ -73,7 +122,7 @@ router.put('/:personId',async (req,res)=>{
 })
 
 
-router.delete('/:personid',async (req,res)=>{
+router.delete('/:personid',jwtAuthMiddleware,async (req,res)=>{
     try{
         const id=req.params.personid;
 

@@ -98,6 +98,7 @@ require('dotenv').config()
 const Passport=require('./auth');
 const passport = require('./auth');
 app.use(bodyParser.json())
+const {jwtAuthMiddleware,genToken}=require('./jwt')
 
 
 // logging middle-ware 
@@ -113,7 +114,7 @@ app.get('/',logReq,function(req,res){
     res.send('Welcome to my restaurant');
 })
 
-app.use('/person',localAuthMiddleware,logReq,PersonRoutes)
+app.use('/person',logReq,PersonRoutes)
 app.use('/item',logReq,MenuItemRoutes)
 
 
